@@ -19,7 +19,7 @@ export default class AccountsPage {
 
     async getWelcomeMessage(): Promise<string> {
         // Get the welcome message that confirms login
-        const welcomeElement = this.page.locator("h1").first();
+        const welcomeElement = this.page.locator("//b[contains(text(),'Welcome')]").first();
         await welcomeElement.waitFor({ state: "visible" });
         return await welcomeElement.textContent() || "";
     }

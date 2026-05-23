@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import PlaywrightWrapper from "../helper/wrapper/PlaywrightWrappers";
 
 export default class LoginPage {
@@ -9,9 +9,10 @@ export default class LoginPage {
     }
 
     private Elements = {
+        h2customerLogin: "//h2[contains(text(),'Customer Login')]",
         username: "input[name='username']",
         password: "input[name='password']",
-        loginBtn: "input[value='Login']"
+        loginBtn: "input[value='Log In']"
     };
 
     async navigateToLoginPage() {
@@ -19,6 +20,7 @@ export default class LoginPage {
     }
 
     async enterUsername(username: string) {
+        expect(await this.page.locator(this.Elements.h2customerLogin)).toBeVisible();
         await this.page.fill(this.Elements.username, username);
     }
 

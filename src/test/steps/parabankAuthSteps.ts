@@ -36,16 +36,13 @@ When('User fills in the registration form with valid details', async function (d
 });
 
 When('User submits the registration form', async function () {
-    // Registration is submitted as part of registerUser method
-    await fixture.page.waitForLoadState("networkidle");
-    fixture.logger.info("Registration form submitted");
+    await registerPage.submitRegistrationForm();
+    fixture.logger.info("Submitted registration form");
 });
 
 Then('Registration should be successful', async function () {
-    // Check for successful registration message
-    const successMessage = fixture.page.locator(".ng-binding").filter({ hasText: "Your account was created successfully" });
-    await expect(successMessage).toBeVisible({ timeout: 10000 });
-    fixture.logger.info("Registration was successful");
+    await registerPage.registerSuccessful();
+    fixture.logger.info("Validated successful registration");
 });
 
 Given('User logs in with registered credentials', async function (dataTable) {
@@ -63,12 +60,36 @@ Then('Login should be successful', async function () {
 });
 
 Then('Account balance should be displayed on the page', async function () {
+    // Verify the account table is visible
+    const accountTable = fixture.page.locator("#accountTable");
+    await expect(accountTable).toBeVisible();
+    fixture.logger.info("Account table is visible");
+
+    // Verify the Balance column header exists
+    const balanceHeader = fixture.page.locator("#accountTable thead th").filter({ hasText: "Balance" });
+    await expect(balanceHeader).toBeVisible();
+    fixture.logger.info("Balance column header is visible");
+
+    // Get and validate the account balance
     const balance = await accountsPage.getAccountBalance();
     console.log("Account Balance: " + balance);
     fixture.logger.info("Account Balance displayed: " + balance);
-    expect(balance).toContain("$");
+    
+    // Validate balance format (e.g., $515.50)
+    expect(balance).toMatch(/^\$\d+\.\d{2}$/);
+    fixture.logger.info("Balance format validated: " + balance);
+
+    // Verify the Total row exists
+    const totalRow = fixture.page.locator("#accountTable tbody tr").last();
+    await expect(totalRow).toContainText("Total");
+    fixture.logger.info("Total row is visible");
     
     // Take screenshot as proof of execution
     await fixture.page.screenshot({ path: "test-results/screenshots/account-balance.png" });
     fixture.logger.info("Screenshot captured: account-balance.png");
+});
+
+Given('user logout after successful registration', async function () {
+    await registerPage.userLogout();
+    fixture.logger.info("User logged out after successful registration");
 });

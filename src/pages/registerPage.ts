@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import PlaywrightWrapper from "../helper/wrapper/PlaywrightWrappers";
 
 export default class RegisterPage {
@@ -11,20 +11,23 @@ export default class RegisterPage {
     private Elements = {
         firstName: "input[name='customer.firstName']",
         lastName: "input[name='customer.lastName']",
-        address: "input[name='customer.address.streetAddress']",
+        address: "input[name='customer.address.street']",
         city: "input[name='customer.address.city']",
         state: "input[name='customer.address.state']",
         zipCode: "input[name='customer.address.zipCode']",
         phoneNumber: "input[name='customer.phoneNumber']",
         ssn: "input[name='customer.ssn']",
-        username: "input[name='user.username']",
-        password: "input[name='user.password']",
+        username: "input[name='customer.username']",
+        password: "input[name='customer.password']",
         confirmPassword: "input[name='repeatedPassword']",
-        registerBtn: "input[value='Register']"
+        registerBtn: "input[value='Register']",
+        logoutBtn: "//a[contains(text(),'Log Out')]",
     };
 
     async navigateToRegisterPage() {
         await this.page.goto("register.xhtml");
+        await this.page.locator("//a[contains(text(),'Register')]").filter({ hasText: "Register" }).waitFor({ state: "visible" });
+        await this.page.locator("//a[contains(text(),'Register')]").filter({ hasText: "Register" }).click();
     }
 
     async registerUser(firstName: string, lastName: string, address: string, city: string, 
@@ -41,6 +44,18 @@ export default class RegisterPage {
         await this.page.fill(this.Elements.username, username);
         await this.page.fill(this.Elements.password, password);
         await this.page.fill(this.Elements.confirmPassword, confirmPassword);
+    }
+
+    async registerSuccessful(){
+        await this.page.locator("//h1[contains(text(),'Welcome')]").waitFor({ state: "visible" });
+        expect(await this.page.locator("//p[contains(text(),'Your account was created successfully. You are now logged in.')]")).toBeVisible();
+    }
+
+    async submitRegistrationForm(){
         await this.base.waitAndClick(this.Elements.registerBtn);
+    }
+
+    async userLogout(){
+        await this.base.waitAndClick(this.Elements.logoutBtn);
     }
 }
