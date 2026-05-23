@@ -1,2 +1,0 @@
-# playwright
-Test automation framework
